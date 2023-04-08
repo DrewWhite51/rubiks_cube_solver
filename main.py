@@ -4,37 +4,33 @@ import pathlib
 
 cascade_path = pathlib.Path(cv2.__file__).parent.absolute() / 'data/haarcascade_frontalface_default.xml'
 
-print(cascade_path)
+# Building face classifier
+clf = cv2.CascadeClassifier(str(cascade_path))
+
+camera = cv2.VideoCapture(0)
 
 
-# faceCascade = cv2.CascadeClassifier(cascPath)
+while True:
+    _, frame = camera.read()
+    # Making frame gray
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Detecting the faces
+    faces = clf.detectMultiScale(
+        gray,
+        scaleFactor = 1.1,
+        minNeighbors = 5,
+        minSize = (30, 30),
+        flags = cv2.CASCADE_SCALE_IMAGE
+    )
 
-# video_capture = cv2.VideoCapture(0)
+    for (x, y, width, height) in faces:
+        cv2.rectangle(frame, (x,y), (x+width, y+height), (255, 255, 0), 2)
 
-# while True:
-#     # Capture frame-by-frame
-#     ret, frame = video_capture.read()
+    cv2.imshow('Faces', frame)
 
-#     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # If quit break the loop
+    if cv2.waitKey(1) == ord('q'):
+        break
 
-#     faces = faceCascade.detectMultiScale(
-#         gray,
-#         scaleFactor=1.1,
-#         minNeighbors=5,
-#         minSize=(30, 30),
-#         flags=cv2.cv.CV_HAAR_SCALE_IMAGE
-#     )
-
-#     # Draw a rectangle around the faces
-#     for (x, y, w, h) in faces:
-#         cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-#     # Display the resulting frame
-#     cv2.imshow('Video', frame)
-
-#     if cv2.waitKey(1) & 0xFF == ord('q'):
-#         break
-
-# # When everything is done, release the capture
-# video_capture.release()
-# cv2.destroyAllWindows()
+camera.release()
+cv2.destroyAllWindows()
